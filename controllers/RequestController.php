@@ -9,6 +9,7 @@ use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\web\UploadedFile;
 
 /**
  * RequestController implements the CRUD actions for Request model.
@@ -31,6 +32,15 @@ class RequestController extends Controller
                             'allow' => true,
                             'actions' => ['index', 'create'],
                             'roles' => ['@'],
+                        ],
+                        [
+                            'allow' => true,
+                            'actions' => ['cancel', 'success'],
+                            'roles' => ['@'],
+                            'matchCallback' => function ($rule, $action){
+                                $model = Request::findOne(Yii::$app->request->get('id'));
+                                return Yii::$app->user->identity->isAdmin() && $model->status == 0;
+                            }
                         ],
                     ],
                 ],
@@ -82,12 +92,12 @@ class RequestController extends Controller
     {
         $model = new Request();
 
-        if ($this->request->isPost) {
-            if ($model->load($this->request->post()) && $model->save()) {
-                return $this->redirect(['view', 'id' => $model->id]);
+        if ($model->load(Yii::$app->request->post())){
+            $model->imageFile = UploadedFile::getInstance($model, 'imageFile');
+            if ($model->validate() && $model->upload()){
+                $model->save(false);
             }
-        } else {
-            $model->loadDefaultValues();
+            return $this->redirect(['index']);
         }
 
         return $this->render('create', [
@@ -143,5 +153,36 @@ class RequestController extends Controller
         }
 
         throw new NotFoundHttpException('The requested page does not exist.');
+    }
+
+    public function actionCancel($id)
+    {
+        $model = Request::findOne($id);
+        $model->scenario = 'cancel';
+
+        if ($model->load(Yii::$app->request->post()) && $model->cancel()){
+            return $this->redirect(['view', 'id' => $model->id]);
+        }
+
+        return $this->render('cancel', [
+            'model' => $model,
+        ]);
+    }
+    public function actionSuccess($id)
+    {
+        $model = $this->findModel($id);
+
+        $model->scenario = 'success';
+
+        if (Yii::$app->request->post()){
+            $model->imageFile = UploadedFile::getInstance($model, 'imageFile');
+            if($model->success()){
+                return $this->redirect(['admin/index']);
+            }
+        }
+
+        return $this->render('success', [
+            'model' => $model,
+        ]);
     }
 }

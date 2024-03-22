@@ -11,32 +11,34 @@ use yii\grid\GridView;
 
 ?>
 
-    <h1>Административная панель</h1>
-
 <p>
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
-
+            [
+                'attribute' => 'datetime',
+                'format' => ['date', 'php:Y-m-d']
+            ],
             'category.name',
             'user.fullname',
             'name',
             'description:ntext',
+            'status',
             [
-                'label' => 'Статус заявки',
-                'attribute' => 'status',
+                'label' => 'Фото заявки',
+                'format' => 'raw',
                 'value' => function ($data){
-                    if ($data->status==0) return 'Новая';
-                    if ($data->status==1) return 'Завершена';
-                    if ($data->status==2) return 'Отменена';
-                 },
-                'filter' => ['0' => 'Новая', '1' => 'Решена', '2' => 'Отклонена'],
-                'filterInputOptions' => ['prompt' => 'Все статусы', 'class' => 'form-control', 'id' => 'null'],
+                    return Html::img($data->photo, ['style' => 'width: 250px', 'alt' => 'image']);
+                },
             ],
 
             ['class' => 'yii\grid\ActionColumn'],
         ],
     ]); ?>
+</p>
+
+<p>
+    <?= Html::a('Создать заявку', ['create'], ['class' => 'btn btn-success']) ?>
 </p>
