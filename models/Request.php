@@ -53,16 +53,13 @@ class Request extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'id_category' => 'Id Category',
-            'id_user' => 'Id User',
-            'name' => 'Name',
-            'description' => 'Description',
-            'photo' => 'Photo',
-            'status' => 'Status',
-            'datetime' => 'Datetime',
-            'description_denied' => 'Description Denied',
-            'photo_after' => 'Photo After',
+            'name' => 'Название',
+            'description' => 'Описание',
+            'photo' => 'Фото до',
+            'status' => 'Статус',
+            'datetime' => 'Дата подачи',
+            'description_denied' => 'Причина отказа',
+            'photo_after' => 'Фото после',
         ];
     }
 

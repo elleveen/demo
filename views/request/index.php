@@ -9,41 +9,34 @@ use yii\grid\GridView;
 /** @var yii\web\View $this */
 /** @var yii\data\ActiveDataProvider $dataProvider */
 
-$this->title = 'Requests';
-$this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="request-index">
 
-    <h1><?= Html::encode($this->title) ?></h1>
+    <h1>Административная панель</h1>
 
-    <p>
-        <?= Html::a('Create Request', ['create'], ['class' => 'btn btn-success']) ?>
-    </p>
-
+<p>
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
 
-            'id',
-            'id_category',
-            'id_user',
+            'category.name',
+            'user.fullname',
             'name',
             'description:ntext',
-            //'photo',
-            //'status',
-            //'datetime',
-            //'description_denied:ntext',
-            //'photo_after',
             [
-                'class' => ActionColumn::className(),
-                'urlCreator' => function ($action, Request $model, $key, $index, $column) {
-                    return Url::toRoute([$action, 'id' => $model->id]);
-                 }
+                'label' => 'Статус заявки',
+                'attribute' => 'status',
+                'value' => function ($data){
+                    if ($data->status==0) return 'Новая';
+                    if ($data->status==1) return 'Завершена';
+                    if ($data->status==2) return 'Отменена';
+                 },
+                'filter' => ['0' => 'Новая', '1' => 'Решена', '2' => 'Отклонена'],
+                'filterInputOptions' => ['prompt' => 'Все статусы', 'class' => 'form-control', 'id' => 'null'],
             ],
+
+            ['class' => 'yii\grid\ActionColumn'],
         ],
     ]); ?>
-
-
-</div>
+</p>

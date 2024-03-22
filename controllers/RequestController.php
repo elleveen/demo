@@ -3,7 +3,9 @@
 namespace app\controllers;
 
 use app\models\Request;
+use Yii;
 use yii\data\ActiveDataProvider;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -21,6 +23,17 @@ class RequestController extends Controller
         return array_merge(
             parent::behaviors(),
             [
+                'access' => [
+                    'class' => AccessControl::className(),
+                    'only' => ['*'],
+                    'rules' => [
+                        [
+                            'allow' => true,
+                            'actions' => ['index', 'create'],
+                            'roles' => ['@'],
+                        ],
+                    ],
+                ],
                 'verbs' => [
                     'class' => VerbFilter::className(),
                     'actions' => [
@@ -30,7 +43,6 @@ class RequestController extends Controller
             ]
         );
     }
-
     /**
      * Lists all Request models.
      *
@@ -39,18 +51,9 @@ class RequestController extends Controller
     public function actionIndex()
     {
         $dataProvider = new ActiveDataProvider([
-            'query' => Request::find(),
-            /*
-            'pagination' => [
-                'pageSize' => 50
-            ],
-            'sort' => [
-                'defaultOrder' => [
-                    'id' => SORT_DESC,
-                ]
-            ],
-            */
-        ]);
+            'query' => Request::find()->where(['id_user' => Yii::$app->user->getId()])
+            ->orderBy('dateTime DESC'),
+            ]);
 
         return $this->render('index', [
             'dataProvider' => $dataProvider,
